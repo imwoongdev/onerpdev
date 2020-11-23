@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="usermenu">
+	<typeAlias alias="egovMap" type="onerp.common.util.EgovMap"/>
+
+	<!--
+	** 로그인 인증키(쿠키로 90일간 유지) 업데이트, 암호 유효기간
+	-->
+	<update id="usermenu.updateUser" parameterClass="egovMap">
+		<![CDATA[
+		update
+			sysuser 
+		set security_key = #securityKey#
+		    ,login_fails = 0
+		    ,update_by = #userId#
+		    ,update_date = #currentDate#
+		    ,update_pc = #userPc#
+		where user_id = #userId#
+		 and client_code = #clientCode#
+		 ]]>
+	</update>
+	
+	<!--
+	** user login 관련 정보 취합
+	-->
+	<select id="usermenu.getUserMenu" parameterClass="egovMap" resultClass="egovMap">
+		<![CDATA[
+		select
+			user_id,
+			user_name, 
+			concat(user_id, '@onerpins.com') as email_address,
+			security_key,
+			is_block,
+			login_fails,
+			max_sessions,
+			apply_start_date,
+			apply_end_date, 
+			last_pwd_change,
+			password as password
+		from sysuser  
+		where user_id = #userId#  
+		and client_code = #clientCode# 
+		 ]]>
+	</select>
+	   
+</sqlMap>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="applmessage">
+	<typeAlias alias="egovMap" type="onerp.common.util.EgovMap"/> 
+	
+	<!--
+	** appl error message 정보 가져오기
+	-->
+	<select id="applmessage.selectList" parameterClass="egovMap" resultClass="egovMap">
+		<![CDATA[
+		SELECT  LANG_ID,
+				ERROR_CODE,       
+				ERROR_STR,  
+				ERROR_TYPE
+		FROM SYSAPPLMESSAGE  a
+		WHERE LANG_ID     = #langId#
+		AND  CLIENT_CODE  = #clientCode#
+		AND ERROR_CODE    = #errorCode#
+		AND ERROR_TYPE    = #errorType# 
+		 ]]>
+	</select> 
+</sqlMap>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="logout">
+	<typeAlias alias="egovMap" type="onerp.common.util.EgovMap"/>
+
+	<!--
+	** 로그인 인증키(쿠키로 90일간 유지) 업데이트, 암호 유효기간
+	--> 
+	<!--
+	** 비밀번호 변경처리(정상)
+	-->
+	<update id="logout.updateUserInfo" parameterClass="egovMap">
+		<![CDATA[
+		update
+			sysuser 
+		set
+			 security_key = ''
+		    ,login_fails = 0
+		    ,update_by = #userId#
+		    ,update_date = #currentDate#
+		    ,update_pc = #userPc#
+		where user_id=#userId#
+		 and client_code = #clientCode#
+		 ]]>
+	</update> 
+</sqlMap>

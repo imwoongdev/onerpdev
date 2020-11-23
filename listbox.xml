@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="listbox">
+	<typeAlias alias="egovMap" type="onerp.common.util.EgovMap"/> 
+	
+	<!--
+	** listbox 정보 가져오기
+	-->
+	<select id="listbox.selectList" parameterClass="egovMap" resultClass="egovMap">
+		<![CDATA[
+		SELECT A.QUERY_BODY+' '+ A.QUERY_WHERE+' '+ #whereClause# +' '+A.QUERY_ORDERBY as QUERY_STRING
+		FROM   SYSLISTBOX A 
+		WHERE  A.listbox_id = #listBoxId#
+		and    A.client_code = #clientCode# 
+		 ]]>
+	</select>
+	 
+	<!--
+	** listbox 정보 실행
+	-->
+	<select id="listbox.executeSQL" parameterClass="egovMap" resultClass="egovMap">
+		<![CDATA[
+		EXEC sp_executesql #queryString#
+		 ]]>
+	</select>
+	 
+</sqlMap>

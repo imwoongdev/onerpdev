@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="Common">
+	<typeAlias alias="egovMap" type="onerp.common.util.EgovMap"/>
+ 
+	<!--
+	** DynamicSQL 정보 실행
+	-->
+	<select id="common.executeDynamicSQL" parameterClass="egovMap" resultClass="egovMap">
+		<![CDATA[
+		EXEC sp_executesql #queryString#
+		 ]]>
+	</select> 
+	 
+	<procedure id="common.procedure" parameterClass="java.util.Map" resultClass="egovMap" remapResults="true">
+		exec $procedure$
+	    #workType#,
+	        <iterate  property="params" open="" close="" conjunction="">
+	    #params[]#,
+	        </iterate>
+	    @P_ERROR_CODE=#errorCode,javaType=java.lang.String,jdbcType=VARCHAR,mode=OUT#, 
+	    @P_ROW_COUNT=#rowCount,javaType=java.lang.Integer,jdbcType=INTEGER,mode=OUT#,
+	    @P_ERROR_NOTE=#errorNote,javaType=java.lang.String,jdbcType=VARCHAR,mode=OUT#, 
+	    @P_RETURN_STR=#returnStr,javaType=java.lang.String,jdbcType=VARCHAR,mode=OUT#, 
+	    @P_ERROR_STR=#errorStr,javaType=java.lang.String,jdbcType=VARCHAR,mode=OUT#, 
+	    @ERRORSTATE=#errorState,javaType=java.lang.String,jdbcType=VARCHAR,mode=OUT#, 
+	    @ERRORPROCEDURE=#errorProcedure,javaType=java.lang.String,jdbcType=VARCHAR,mode=OUT#
+    </procedure>
+
+</sqlMap>

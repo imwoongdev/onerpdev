@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="sessioninfo">
+	<typeAlias alias="egovMap" type="onerp.common.util.EgovMap"/> 
+	<!--
+	** user login 관련 정보 취합
+	-->
+	<select id="sessioninfo.getSessionInfo" parameterClass="egovMap" resultClass="egovMap">
+		<![CDATA[
+			SELECT 'SESSION_INFO' AS PROFILE_TYPE,
+			       'USER_ID' AS KEY_CODE,
+	                A.USER_ID AS KEY_VALUE 
+			FROM SYSUSER A  
+			WHERE A.CLIENT_CODE = #clientCode#
+			AND   A.COMPANY_CODE = #companyCode#
+			AND   A.USER_ID	= #userId#
+			UNION ALL			
+			SELECT 'SESSION_INFO' AS PROFILE_TYPE,
+			       'USER_NAME' AS KEY_CODE,
+	                TO_CHAR(A.USER_NAME) AS KEY_VALUE 
+			FROM SYSUSER A  
+			WHERE A.CLIENT_CODE = #clientCode#
+			AND   A.COMPANY_CODE = #companyCode#
+			AND   A.USER_ID	= #userId#
+			UNION ALL			
+			SELECT 'SESSION_INFO' AS PROFILE_TYPE,
+			       'CLIENT_CODE' AS KEY_CODE,
+	                A.CLIENT_CODE AS KEY_VALUE 
+			FROM SYSUSER A  
+			WHERE A.CLIENT_CODE = #clientCode#
+			AND   A.COMPANY_CODE = #companyCode#
+			AND   A.USER_ID	= #userId#
+			UNION ALL			
+			SELECT 'SESSION_INFO' AS PROFILE_TYPE,
+			       'COMPANY_CODE' AS KEY_CODE,
+	                A.COMPANY_CODE AS KEY_VALUE 
+			FROM SYSUSER A  
+			WHERE A.CLIENT_CODE = #clientCode#
+			AND   A.COMPANY_CODE = #companyCode#
+			AND   A.USER_ID	= #userId#
+			UNION ALL			
+			SELECT 'SESSION_INFO' AS PROFILE_TYPE,
+			       'EMP_NO' AS KEY_CODE,
+	                A.EMP_NO AS KEY_VALUE 
+			FROM SYSUSER A  
+			WHERE A.CLIENT_CODE = #clientCode#
+			AND   A.COMPANY_CODE = #companyCode#
+			AND   A.USER_ID	= #userId#
+			UNION ALL			
+			SELECT 'SESSION_INFO' AS PROFILE_TYPE,
+					'USER_CATEGORY' AS KEY_CODE,
+		             A.USER_CATEGORY AS KEY_VALUE 
+			 FROM SYSUSER A  
+			WHERE A.CLIENT_CODE = #clientCode#
+			AND   A.COMPANY_CODE = #companyCode#
+			AND   A.USER_ID	= #userId#
+			UNION ALL 
+			SELECT 'SESSION_INFO' AS PROFILE_TYPE,
+					'ISHRMANAGER' AS KEY_CODE,
+					A.AUTH_VALUE  AS KEY_VALUE
+			FROM   SYSUSERAUTH A 
+			WHERE A.CLIENT_CODE = #clientCode#
+			AND   A.COMPANY_CODE = #companyCode#
+			AND   A.USER_ID	= #userId#
+			AND   A.AUTH_TYPE = 'HR_NAMAGER'
+			UNION ALL
+			SELECT 'SESSION_INFO' AS PROFILE_TYPE,
+					'ISACCOUNTMANAGER' AS KEY_CODE,
+					A.AUTH_VALUE  AS KEY_VALUE
+			FROM   SYSUSERAUTH A 
+			WHERE A.CLIENT_CODE = #clientCode#
+			AND   A.COMPANY_CODE = #companyCode#
+			AND   A.USER_ID	= #userId#
+			AND   A.AUTH_TYPE = 'ACCOUNT_MANAGER_YN' 
+			UNION ALL
+			SELECT 'SESSION_INFO' AS PROFILE_TYPE,
+					'COMPANY_NAME' AS KEY_CODE,
+					TO_CHAR(A.COMPANY_NAME) AS KEY_VALUE
+			FROM  MDMCOMPANY A
+			WHERE A.CLIENT_CODE = #clientCode#
+			AND   A.COMPANY_CODE = #companyCode#
+			UNION ALL
+			SELECT 'SESSION_INFO' AS PROFILE_TYPE,
+					'CLIENT_NAME' AS KEY_CODE,
+					TO_CHAR(A.CLIENT_NAME) AS KEY_VALUE
+			FROM  MDMCLIENT A
+			WHERE A.CLIENT_CODE = #clientCode# 
+			UNION ALL
+			SELECT 'SESSION_INFO' AS PROFILE_TYPE,
+					'ACCT_RULE_CODE' AS KEY_CODE,
+					A.ACCT_RULE_CODE AS KEY_VALUE
+			FROM  MDMCOMPANY A
+			WHERE A.CLIENT_CODE = #clientCode#
+			AND   A.COMPANY_CODE = #companyCode#
+			UNION ALL
+			SELECT 'SESSION_INFO' AS PROFILE_TYPE,
+					'BASE_CURRENCY' AS KEY_CODE,
+					A.CURRENCY_CODE AS KEY_VALUE
+			FROM  MDMCOMPANY A
+			WHERE A.CLIENT_CODE = #clientCode#
+			AND   A.COMPANY_CODE = #companyCode#
+			UNION ALL 
+			SELECT 'SESSION_INFO' AS PROFILE_TYPE,
+					'LOGIN_TIME' AS KEY_CODE,
+					TO_CHAR(SYSDATE,'yyyy-mm-dd hh24:mi:ss') AS KEY_VALUE 
+			FROM DUAL
+			UNION ALL
+			SELECT 'SECURITY' AS PROFILE_TYPE,
+					'AESKEY' AS KEY_CODE,
+					'HSS@134' AS KEY_VALUE
+			FROM DUAL
+			UNION ALL
+			SELECT 'SECURITY' AS PROFILE_TYPE,
+					'AESVECTOR' AS KEY_CODE,
+					'HSS!123' AS KEY_VALUE
+			FROM DUAL
+			UNION ALL
+			SELECT  PROFILE_TYPE ,
+					KEY_CODE ,
+					TO_CHAR(KEY_VALUE)
+			FROM SYSPROFILE A
+			WHERE A.CLIENT_CODE = #clientCode# 
+			AND   A.COMPANY_CODE = #companyCode#
+			UNION ALL
+			SELECT 'NUMPOINT' AS PROFILE_TYPE,
+					NUMPOINT_ID AS KEY_CODE,
+					RTRIM(NUMPOINT_LENGTH) AS KEY_VALUE
+			FROM SYSNUMPOINT A
+			WHERE A.CLIENT_CODE = #clientCode# 
+			AND   A.COMPANY_CODE = #companyCode#
+		 ]]>
+	</select>
+	   
+</sqlMap>

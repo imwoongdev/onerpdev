@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="login">
+	<typeAlias alias="egovMap" type="onerp.common.util.EgovMap"/>
+
+	<!--
+	** 로그인 인증키(쿠키로 90일간 유지) 업데이트, 암호 유효기간
+	-->
+	<update id="login.updateUser" parameterClass="egovMap">
+		<![CDATA[
+		update
+			sysuser 
+		set
+			 security_key = #securityKey#
+		    ,login_fails = 0
+		    ,block_date = ''
+		    ,block_reason = ''
+		    ,update_by = #userId#
+		    ,update_date =to_date( #currentDate#,'yyyy-mm-dd hh24:mi:ss')
+		    ,update_pc = #userPc#
+		where user_id = #userId#
+		 and client_code = #clientCode#
+		 ]]>
+	</update>
+	
+	<!--
+	** user login 관련 정보 취합
+	-->
+	<select id="login.getLoginInfo" parameterClass="egovMap" resultClass="egovMap"> 
+		select
+		    CLIENT_CODE,
+		    COMPANY_CODE,
+			USER_ID,
+			USER_NAME, 
+			EMAIL_ID AS EMAIL_ADDRESS,
+			PHONE_NUM AS PHONE_NUM,
+			SECURITY_KEY,
+			IS_BLOCK,
+			LOGIN_FAILS,
+			MAX_SESSIONS,
+			APPLY_START_DATE,
+			APPLY_END_DATE, 
+			LAST_PWD_CHANGE,
+			PASSWORD_VALIDITY,
+			PASSWORD AS PASSWORD,
+			SHOULD_CHANGE_PWD,
+			USER_CATEGORY
+		from
+			sysuser  
+		where
+			user_id = #userId#  
+		and client_code = #clientCode#  
+	</select>
+	
+	<!--
+	** 유저 기본정보 조회 (로그인 인증키)
+	-->
+	<select id="login.selectSecuredUser" parameterClass="egovMap" resultClass="egovMap">
+		<![CDATA[
+		select
+		    CLIENT_CODE,
+		    COMPANY_CODE,
+		    USER_ID,
+			USER_NAME, 
+			EMAIL_ID AS EMAIL_ADDRESS,
+			PHONE_NUM AS PHONE_NUM,
+			SECURITY_KEY,
+			IS_BLOCK,
+			LOGIN_FAILS,
+			MAX_SESSIONS,
+			APPLY_START_DATE,
+			APPLY_END_DATE, 
+			LAST_PWD_CHANGE,
+			PASSWORD_VALIDITY,
+			PASSWORD AS PASSWORD,
+			SHOULD_CHANGE_PWD,
+			USER_CATEGORY
+		from
+			sysuser   
+		where security_key=#securityKey#
+		and client_code = #clientCode#
+		 ]]>
+	</select>
+	
+	<!--
+	** 비밀번호 변경처리(정상)
+	-->
+	<update id="login.updateChangePwd" parameterClass="egovMap">
+		<![CDATA[
+		update
+			sysuser 
+		set
+			 password_old = password
+			,password = #userPwd#
+			,should_change_pwd = 0
+			,last_pwd_change = to_date( #currentDate#,'yyyy-mm-dd hh24:mi:ss')
+		    ,login_fails = 0
+		    ,update_by = #userId#
+		    ,update_date = to_date( #currentDate#,'yyyy-mm-dd hh24:mi:ss')
+		    ,update_pc = #userPc#
+		where user_id=#userId#
+		 and client_code = #clientCode#
+		 ]]>
+	</update>
+	
+	<!--
+	** password 불일치에 따른 오류횟수 처리
+	-->
+	<update id="login.updateLoginFail" parameterClass="egovMap">
+		<![CDATA[
+		update
+			sysuser 
+		set  login_fails = #loginFailCnt#
+		    ,update_by = #userId#
+		    ,update_date = to_date( #currentDate#,'yyyy-mm-dd hh24:mi:ss')
+		    ,update_pc = #userPc#
+		where user_id=#userId#
+		and client_code = #clientCode#
+		 ]]>
+	</update>
+	
+	<!--
+	** 비밀번호 변경처리(오류회수초과로 인한 일시정지처리)
+	-->
+	<update id="login.updateLoginBlock" parameterClass="egovMap">
+		<![CDATA[
+		update
+			sysuser 
+		set  login_fails = #loginFailCnt#
+		    ,is_block = 1
+		    ,block_reason = '비밀번호 오류 회수초과'
+		    ,block_date = to_date( #currentDate#,'yyyy-mm-dd hh24:mi:ss')
+		    ,update_by = #userId#
+		    ,update_date = to_date( #currentDate#,'yyyy-mm-dd hh24:mi:ss')
+		    ,update_pc = #userPc#
+		where user_id=#userId#
+		 and client_code = #clientCode#
+		 ]]>
+	</update>
+	<!--
+	** 비밀번호 초기화에 따른 변경처리
+	-->
+	<update id="login.updateInitialPwd" parameterClass="egovMap">
+		<![CDATA[
+		update
+			sysuser 
+		set
+			 password_old = password
+			,password = #userPwd#
+			,should_change_pwd = 1
+			,last_pwd_change = to_date( #currentDate#,'yyyy-mm-dd hh24:mi:ss')
+		    ,login_fails = 0
+		    ,is_block = 0
+		    ,block_reason = ''
+		    ,block_date = ''
+		    ,update_by = #userId#
+		    ,update_date = to_date( #currentDate#,'yyyy-mm-dd hh24:mi:ss')
+		    ,update_pc = #userPc#
+		where user_id=#userId#
+		 and client_code = #clientCode#
+		 ]]>
+	</update> 
+	 
+	<!--
+	** 로그인 에러 정보 생성
+	-->
+	<insert id="login.insertSysLogHistory" parameterClass="egovMap">
+		<![CDATA[
+		INSERT INTO SYSLOGHIS(
+		   client_code,         company_code,
+		   log_date,			user_id,		log_type,		login_key,
+		   parent_login_key,	form_id,		form_name,		memo,
+		   login_time,		    logout_time,	log_ip,			log_pc,    log_mac_address,     
+		   insert_by,           insert_date,     insert_pc
+		   )
+		values (  
+		   #clientCode#,      #companyCode#,
+	       to_date( #currentDate#,'yyyy-mm-dd hh24:mi:ss'),     #userId#,       #logType#,  #loginKey#, 
+	       #parentLogingKey#, #formId#,       #formName#, #memo#,
+	       to_date( #loginTime#,'yyyy-mm-dd hh24:mi:ss'),     to_date( #logoutTime#,'yyyy-mm-dd hh24:mi:ss'),   #logIp#,    #logPc#,       #logMacAddress#,
+	       #userId#,          to_date( #currentDate#,'yyyy-mm-dd hh24:mi:ss'),  #userPc#
+	        )
+		 ]]>
+	</insert>
+	  
+</sqlMap>
